@@ -9,7 +9,7 @@ import {
     getUnresolvedBugs,
     getBugsByUser,
 } from "../bugs";
-import configureStore from "../configureStore";
+import storeConfiguration from "../storeConfiguration";
 
 // AAA
 // -> Arrange
@@ -17,12 +17,12 @@ import configureStore from "../configureStore";
 // -> Assert
 
 describe("bugsSlice", () => {
-    let fakeAxios;
-    let store;
+    let fakeAxios: any;
+    let store: any;
 
     beforeEach(() => {
         fakeAxios = new MockAdapter(axios);
-        store = configureStore();
+        store = storeConfiguration;
     });
 
     const bugsSlice = () => store.getState().entities.bugs;
@@ -186,7 +186,7 @@ describe("bugsSlice", () => {
 
     describe("selectors", () => {
         it("getUnresolvedBugs", () => {
-            const state = createState();
+            const state: any = createState();
             state.entities.bugs.list = [
                 { id: 1, resolved: true },
                 { id: 2 },
@@ -200,7 +200,7 @@ describe("bugsSlice", () => {
         });
 
         it("getBugsByUser", () => {
-            const state = createState();
+            const state: any = createState();
             state.entities.bugs.list = [
                 { id: 1, userId: 1 },
                 { id: 2 },
