@@ -40,7 +40,7 @@ const api =
             if (onSuccess)
                 dispatch({
                     type: onSuccess,
-                    payload: response.data,
+                    payload: method === "delete" ? { id: data } : response.data,
                 });
         } catch (error) {
             // General
