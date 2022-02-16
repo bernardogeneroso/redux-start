@@ -5,7 +5,9 @@ import {
     addBug,
     removeBug,
     resolveBug,
+    assignBugToUser,
     getUnresolvedBugs,
+    getBugsByUser,
 } from "../bugs";
 import configureStore from "../configureStore";
 
@@ -157,6 +159,29 @@ describe("bugsSlice", () => {
                 expect(bugsSlice().list[0].resolved).not.toBe(true);
             });
         });
+
+        describe("assigned to user", () => {
+            it("should assing a bug to a user if it's saved to the server", async () => {
+                fakeAxios.onPost("/bugs").reply(200, { id: 1 });
+                fakeAxios.onPatch("/bugs/1").reply(200, { id: 1, userId: 1 });
+
+                await store.dispatch(addBug({ description: "Bug 1" }));
+                await store.dispatch(assignBugToUser(1, 1));
+
+                expect(bugsSlice().list[0].userId).toBe(1);
+            });
+
+            it("should not assing a bug to a user if it's not saved to the server", async () => {
+                fakeAxios.onPost("/bugs").reply(200, { id: 1 });
+                fakeAxios.onPatch("/bugs/1").reply(500, { id: 1, userId: 1 });
+
+                await store.dispatch(addBug({ description: "Bug 1" }));
+                await store.dispatch(assignBugToUser(1, 1));
+
+                expect(bugsSlice().list[0].userId).not.toBe(1);
+                expect(bugsSlice().list[0].userId).toBe(undefined);
+            });
+        });
     });
 
     describe("selectors", () => {
@@ -170,6 +195,20 @@ describe("bugsSlice", () => {
             ];
 
             const result = getUnresolvedBugs(state);
+
+            expect(result).toHaveLength(2);
+        });
+
+        it("getBugsByUser", () => {
+            const state = createState();
+            state.entities.bugs.list = [
+                { id: 1, userId: 1 },
+                { id: 2 },
+                { id: 3 },
+                { id: 4, userId: 1 },
+            ];
+
+            const result = getBugsByUser(1)(state);
 
             expect(result).toHaveLength(2);
         });
