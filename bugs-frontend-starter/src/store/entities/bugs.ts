@@ -3,7 +3,7 @@ import { createSelector } from "reselect";
 import moment from "moment";
 
 import { apiRequest } from "../apiActions";
-import { AppDispatch, RootState } from "../store";
+import { AppDispatch, RootState } from "..";
 
 interface Bug {
     id?: number;
@@ -72,9 +72,10 @@ const slice = createSlice({
 });
 
 export default slice.reducer;
+export const bugsSelector = (state: RootState) => state.entities.bugs;
 
 // Action creators
-const {
+export const {
     bugAdded,
     bugRemoved,
     bugResolved,
@@ -87,7 +88,8 @@ const {
 const url = "/bugs";
 
 export const loadBugs = () => (dispatch: AppDispatch, getState: RootState) => {
-    const { lastFetch } = getState.entities.bugs;
+    // @ts-ignore
+    const { lastFetch } = getState().entities.bugs;
 
     const diffInMinutes = moment().diff(moment(lastFetch), "minutes");
 

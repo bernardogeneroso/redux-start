@@ -2,6 +2,8 @@ import { Middleware } from "@reduxjs/toolkit";
 import axios from "axios";
 import * as actions from "../apiActions";
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 const api: Middleware =
     ({ dispatch }) =>
     (next) =>
@@ -14,6 +16,8 @@ const api: Middleware =
         if (onStart) dispatch({ type: onStart });
 
         next(action);
+
+        await sleep(3000);
 
         try {
             const response = await axios({
