@@ -1,22 +1,46 @@
+import axios from "axios";
+import MockAdapter from "axios-mock-adapter";
 import { addBug } from "../bugs";
-import { apiRequest } from "../api";
+import configureStore from "../configureStore";
+
+// AAA
+// -> Arrange
+// -> Act
+// -> Assert
 
 describe("bugsSlice", () => {
-    describe("action creators", () => {
-        it("addBug", () => {
-            const bug = { description: "a" };
-            const result = addBug(bug);
-            const expected = {
-                type: apiRequest.type,
-                payload: {
-                    url: "/bugs",
-                    method: "post",
-                    data: bug,
-                    onSuccess: "bugs/bugAdded",
-                },
-            };
+    let fakeAxios;
+    let store;
 
-            expect(result).toEqual(expected);
-        });
+    beforeEach(() => {
+        fakeAxios = new MockAdapter(axios);
+        store = configureStore();
+    });
+
+    const bugsSlice = () => store.getState().entities.bugs;
+
+    it("should add the bug to the store if it's saved to the server", async () => {
+        // Arrange
+        const bug = { description: "Bug 1" };
+        const savedBug = { ...bug, id: 1 };
+        fakeAxios.onPost("/bugs").reply(200, savedBug);
+
+        // Act
+        await store.dispatch(addBug(bug));
+
+        // Assert
+        expect(bugsSlice().list).toContainEqual(savedBug);
+    });
+
+    it("should not add the bug to the store if it's not saved to the server", async () => {
+        // Arrange
+        const bug = { description: "Bug 1" };
+        fakeAxios.onPost("/bugs").reply(500);
+
+        // Act
+        await store.dispatch(addBug(bug));
+
+        // Assert
+        expect(bugsSlice().list).toHaveLength(0);
     });
 });
